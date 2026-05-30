@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Update | Career Expo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-xl w-full bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+    
+    <div class="mb-8 border-b border-gray-100 pb-5">
+      <h1 class="text-2xl font-semibold text-gray-800">Career Expo 2026</h1>
+      <p class="text-gray-500 text-sm mt-1">Please submit your team progress update below.</p>
+    </div>
+
+    <form id="trackerForm" class="space-y-5">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+          <input type="date" id="dateField" class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Member Name</label>
+          <input type="text" id="nameField" placeholder="Enter your name" class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Team / Department</label>
+        <select id="teamField" class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+          <option value="" disabled selected>Select your team...</option>
+          <option value="Program Team">Program Team</option>
+          <option value="PR & Finance">Public Relations & Finance</option>
+          <option value="Logistics">Logistics</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Task Status</label>
+        <select id="statusField" class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+          <option value="" disabled selected>Select status...</option>
+          <option value="Ongoing">Ongoing</option>
+          <option value="Completed">Completed</option>
+          <option value="On Hold">On Hold</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Update Details</label>
+        <textarea id="detailsField" rows="3" placeholder="Briefly describe the progress made..." class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Issues / Blockers (Optional)</label>
+        <textarea id="issuesField" rows="2" placeholder="Note any roadblocks here..." class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow resize-none"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors mt-4">
+        Submit Update
+      </button>
+    </form>
+    
+    <div id="statusNotification" class="mt-4 p-3 rounded-md text-sm text-center hidden"></div>
+  </div>
+
+  <script>
+    document.getElementById('dateField').valueAsDate = new Date();
+    const form = document.getElementById('trackerForm');
+    const notification = document.getElementById('statusNotification');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const payload = [
+        document.getElementById('dateField').value,
+        document.getElementById('nameField').value.trim(),
+        document.getElementById('teamField').value,
+        document.getElementById('statusField').value,
+        document.getElementById('detailsField').value.trim(),
+        document.getElementById('issuesField').value.trim()
+      ];
+
+      notification.className = "mt-4 p-3 rounded-md text-sm text-center bg-blue-50 text-blue-700 block";
+      notification.innerText = "Submitting...";
+
+      try {
+        const response = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ values: [payload] })
+        });
+
+        if (response.ok) {
+          notification.className = "mt-4 p-3 rounded-md text-sm text-center bg-green-50 text-green-700 block";
+          notification.innerText = "Update submitted successfully.";
+          
+          document.getElementById('detailsField').value = '';
+          document.getElementById('issuesField').value = '';
+        } else {
+          throw new Error('Server error');
+        }
+      } catch (error) {
+        notification.className = "mt-4 p-3 rounded-md text-sm text-center bg-red-50 text-red-700 block";
+        notification.innerText = "An error occurred. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>
